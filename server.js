@@ -2,11 +2,20 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt-nodejs");
 const cors = require("cors");
+const knex = require("knex");
+
+const db = knex({
+  client: "pg",
+  connection: {
+    host: "127.0.0.1",
+    port: 5432,
+    user: "orhanbenli",
+    password: "",
+    database: "FaceCapt",
+  },
+});
 
 const app = express();
-
-app.use(bodyParser.json());
-app.use(cors());
 
 const database = {
   users: [
@@ -19,7 +28,7 @@ const database = {
       joined: new Date(),
     },
     {
-      id: "1234",
+      id: "124",
       name: "Sally",
       password: "bananas",
       email: "sally@gmail.com",
@@ -27,14 +36,10 @@ const database = {
       joined: new Date(),
     },
   ],
-  login: [
-    {
-      id: "987",
-      hash: "",
-      email: "john@gmail.com",
-    },
-  ],
 };
+
+app.use(cors());
+app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
   res.send(database.users);
@@ -53,13 +58,13 @@ app.post("/signin", (req, res) => {
 
 app.post("/register", (req, res) => {
   const { email, name, password } = req.body;
-  database.users.push({
-    id: "125",
-    name: name,
-    email: email,
-    entries: 0,
-    joined: new Date(),
-  });
+  db("users")
+    .insert({
+      email: email,
+      name: name,
+      joined: new Date(),
+    })
+    .then(console.log);
   res.json(database.users[database.users.length - 1]);
 });
 
